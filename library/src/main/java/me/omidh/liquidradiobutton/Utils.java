@@ -2,10 +2,6 @@ package me.omidh.liquidradiobutton;
 
 import android.content.res.Resources;
 
-/**
- * Created by Omid Heshmatinia on 6/20/2017.
- */
-
 final class Utils {
 
     private static final float DENSITY = Resources.getSystem().getDisplayMetrics().density;
@@ -17,7 +13,14 @@ final class Utils {
         return Math.round(dp * DENSITY);
     }
 
-//    public static int dpToPx(Context context, int dp){
-//        return (int)(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, context.getResources().getDisplayMetrics()) + 0.5f);
-//    }
+    static boolean hasState(int[] states, int state){
+        if(states == null)
+            return false;
+
+        for (int state1 : states)
+            if (state1 == state)
+                return true;
+
+        return false;
+    }
 }

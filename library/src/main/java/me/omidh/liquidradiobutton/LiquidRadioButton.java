@@ -1,17 +1,7 @@
 package me.omidh.liquidradiobutton;
 
-import android.animation.Animator;
-import android.animation.ValueAnimator;
 import android.content.Context;
-import android.content.res.TypedArray;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.util.AttributeSet;
-
-/**
- * Created by Omid Heshmatinia on 6/18/2017.
- */
 
 public class LiquidRadioButton extends android.support.v7.widget.AppCompatRadioButton {
 

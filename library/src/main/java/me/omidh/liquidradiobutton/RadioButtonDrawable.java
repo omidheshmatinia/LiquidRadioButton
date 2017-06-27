@@ -3,9 +3,7 @@ package me.omidh.liquidradiobutton;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
-import android.content.Context;
 import android.content.res.ColorStateList;
-import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
@@ -14,8 +12,6 @@ import android.graphics.PixelFormat;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.os.SystemClock;
-import android.util.AttributeSet;
-import android.util.Log;
 
 class RadioButtonDrawable extends Drawable implements Animatable {
 
@@ -39,6 +35,9 @@ class RadioButtonDrawable extends Drawable implements Animatable {
 
     private boolean mInEditMode = false;
     private boolean mAnimEnable = true;
+
+    ExplosionAnimator mExplosionsAnimator;
+    private Boolean explosionAnimationIsRunning = false;
 
     private RadioButtonDrawable(int width, int height, int strokeSize, ColorStateList strokeColor, int radius, int innerRadius, int animDuration){
         mAnimDuration = animDuration;
@@ -103,84 +102,40 @@ class RadioButtonDrawable extends Drawable implements Animatable {
         float cy = getBounds().exactCenterY();
 
         if(isRunning()){
-//            float halfStrokeSize = mStrokeSize / 2f;
-//            float inTime = (mRadius - halfStrokeSize) / (mRadius - halfStrokeSize + mRadius - mStrokeSize - mInnerRadius);
-
-//            float inProgress = mAnimProgress / inTime;
-//            float innerRadius = (mRadius - halfStrokeSize) * (1f - inProgress);
-
             canvas.scale(1-mScaleFactor,1+mScaleFactor,cx,cy);
 
 //                mPaint.setColor(ColorUtil.getMiddleColor(mPrevColor, mCurColor, inProgress)); //todo
             mPaint.setColor(Color.GREEN);
-//                mPaint.setStrokeWidth(outerRadius - innerRadius);
             mPaint.setStrokeWidth(mStrokeSize);
             mPaint.setStyle(Paint.Style.STROKE);
-//                canvas.drawCircle(cx, cy, (outerRadius + innerRadius) / 2, mPaint);
             canvas.drawCircle(cx, cy, mRadius, mPaint);
 
             mPaint.setColor(Color.GREEN);
             mPaint.setStyle(Paint.Style.FILL);
-//                canvas.drawCircle(cx, (cy-innerRadius)+cy*inProgress,innerRadius, mPaint);
-//            float centerY = Math.min( (cy- mRadius - mStrokeSize)+(mAnimProgress*(mRadius+mStrokeSize)),cy);
             float centerY = (cy - ( mRadius + mStrokeSize) * (1 - mAnimProgress));
-//            float radius = Math.min( mInnerRadius-innerRadius,mInnerRadius);
             float radius = mInnerRadius*mAnimProgress;
             canvas.drawCircle(cx,centerY,radius , mPaint);
         }
         else{
             mPaint.setColor(mCurColor);
-        mPaint.setColor(Color.GREEN);
-        mPaint.setStrokeWidth(mStrokeSize);
-        mPaint.setStyle(Paint.Style.STROKE);
-        canvas.drawCircle(cx, cy, mRadius, mPaint);
+            mPaint.setColor(Color.GREEN);
+            mPaint.setStrokeWidth(mStrokeSize);
+            mPaint.setStyle(Paint.Style.STROKE);
+            canvas.drawCircle(cx, cy, mRadius, mPaint);
 
-        mPaint.setStyle(Paint.Style.FILL);
-        canvas.drawCircle(cx, cy, mInnerRadius, mPaint);
-    }
+            mPaint.setStyle(Paint.Style.FILL);
+            canvas.drawCircle(cx, cy, mInnerRadius, mPaint);
+        }
     }
 
-    ExplosionAnimator mExplosionsAnimator;
-    private Boolean explosionAnimationIsRunning = false;
     private void drawUnchecked(Canvas canvas){
         float cx = getBounds().exactCenterX();
         float cy = getBounds().exactCenterY();
 
-//        if(isRunning()){
-//            float halfStrokeSize = mStrokeSize / 2f;
-//            float inTime = (mRadius - mStrokeSize - mInnerRadius) / (mRadius - halfStrokeSize + mRadius - mStrokeSize - mInnerRadius);
-//
-////            if(mAnimProgress < inTime){
-//                float inProgress = mAnimProgress / inTime;
-//                float innerRadius = (mRadius - mStrokeSize) * inProgress + mInnerRadius * (1f - inProgress);
-//
-////                mPaint.setColor(ColorUtil.getMiddleColor(mPrevColor, mCurColor, inProgress)); //todo
-//                mPaint.setColor(Color.RED);
-//                mPaint.setStyle(Paint.Style.FILL);
-//                canvas.drawCircle(cx, cy, innerRadius, mPaint);
-//
-//                float outerRadius = mRadius + halfStrokeSize * (1f - inProgress);
-//                mPaint.setStrokeWidth(mStrokeSize);
-//                mPaint.setStyle(Paint.Style.STROKE);
-//                canvas.drawCircle(cx, cy, outerRadius - halfStrokeSize, mPaint);
-////            }
-////            else{
-////                float outProgress = (mAnimProgress - inTime) / (1f - inTime);
-////                float outerRadius = mRadius + halfStrokeSize * outProgress;
-////                float innerRadius = (mRadius - halfStrokeSize) * outProgress;
-////
-////                mPaint.setColor(mCurColor);
-////                mPaint.setStrokeWidth(outerRadius - innerRadius);
-////                mPaint.setStyle(Paint.Style.STROKE);
-////                canvas.drawCircle(cx, cy, (outerRadius + innerRadius) / 2, mPaint);
-////            }
-//        }
-//        else{
-            mPaint.setColor(mCurColor);
-            mPaint.setStrokeWidth(mStrokeSize);
-            mPaint.setStyle(Paint.Style.STROKE);
-            canvas.drawCircle(cx, cy, mRadius, mPaint);
-//        }
+        mPaint.setColor(mCurColor);
+        mPaint.setStrokeWidth(mStrokeSize);
+        mPaint.setStyle(Paint.Style.STROKE);
+        canvas.drawCircle(cx, cy, mRadius, mPaint);
         if(!explosionAnimationIsRunning){
             explosionAnimationIsRunning = true ;
             ExplosionAnimator animator = new ExplosionAnimator(this,getBounds(),mCurColor,5);
@@ -200,7 +155,7 @@ class RadioButtonDrawable extends Drawable implements Animatable {
 
     @Override
     protected boolean onStateChange(int[] state) {
-        boolean checked = ViewUtil.hasState(state, android.R.attr.state_checked);
+        boolean checked = Utils.hasState(state, android.R.attr.state_checked);
         int color = mStrokeColor.getColorForState(state, mCurColor);
         boolean needRedraw = false;
 
@@ -310,27 +265,6 @@ class RadioButtonDrawable extends Drawable implements Animatable {
                 invalidateSelf();
             }
         });
-//        animator.addListener(new Animator.AnimatorListener() {
-//            @Override
-//            public void onAnimationStart(Animator animator) {
-//
-//            }
-//
-//            @Override
-//            public void onAnimationEnd(Animator animator) {
-//                mRunning = false;
-//            }
-//
-//            @Override
-//            public void onAnimationCancel(Animator animator) {
-//                mRunning = false;
-//            }
-//
-//            @Override
-//            public void onAnimationRepeat(Animator animator) {
-//
-//            }
-//        });
         animator.start();
     }
 
