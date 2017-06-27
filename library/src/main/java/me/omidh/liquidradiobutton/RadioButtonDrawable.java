@@ -103,12 +103,11 @@ class RadioButtonDrawable extends Drawable implements Animatable {
         float cy = getBounds().exactCenterY();
 
         if(isRunning()){
-            float halfStrokeSize = mStrokeSize / 2f;
-            float inTime = (mRadius - halfStrokeSize) / (mRadius - halfStrokeSize + mRadius - mStrokeSize - mInnerRadius);
+//            float halfStrokeSize = mStrokeSize / 2f;
+//            float inTime = (mRadius - halfStrokeSize) / (mRadius - halfStrokeSize + mRadius - mStrokeSize - mInnerRadius);
 
-            float inProgress = mAnimProgress / inTime;
-            float outerRadius = mRadius + halfStrokeSize * (1f - inProgress);
-            float innerRadius = (mRadius - halfStrokeSize) * (1f - inProgress);
+//            float inProgress = mAnimProgress / inTime;
+//            float innerRadius = (mRadius - halfStrokeSize) * (1f - inProgress);
 
             canvas.scale(1-mScaleFactor,1+mScaleFactor,cx,cy);
 
@@ -123,8 +122,10 @@ class RadioButtonDrawable extends Drawable implements Animatable {
             mPaint.setColor(Color.GREEN);
             mPaint.setStyle(Paint.Style.FILL);
 //                canvas.drawCircle(cx, (cy-innerRadius)+cy*inProgress,innerRadius, mPaint);
-            float centerY = Math.min( (cy- mRadius - mStrokeSize)+mRadius*inProgress,cy);
-            float radius = Math.min( mInnerRadius-innerRadius,mInnerRadius);
+//            float centerY = Math.min( (cy- mRadius - mStrokeSize)+(mAnimProgress*(mRadius+mStrokeSize)),cy);
+            float centerY = (cy - ( mRadius + mStrokeSize) * (1 - mAnimProgress));
+//            float radius = Math.min( mInnerRadius-innerRadius,mInnerRadius);
+            float radius = mInnerRadius*mAnimProgress;
             canvas.drawCircle(cx,centerY,radius , mPaint);
         }
         else{
@@ -189,7 +190,6 @@ class RadioButtonDrawable extends Drawable implements Animatable {
                     mExplosionsAnimator = null;
                 }
             });
-            animator.setStartDelay(0);
             animator.setDuration(300);
             mExplosionsAnimator = animator;
             animator.start();
@@ -250,14 +250,14 @@ class RadioButtonDrawable extends Drawable implements Animatable {
     public void start() {
         resetAnimation();
         startScaleAnimation();
-        scheduleSelf(mUpdater, SystemClock.uptimeMillis() + ViewUtil.FRAME_DURATION);
+        update();
+//        scheduleSelf(mUpdater, SystemClock.uptimeMillis() + ViewUtil.FRAME_DURATION);
         invalidateSelf();
     }
 
     @Override
     public void stop() {
         mRunning = false;
-        unscheduleSelf(mUpdater);
         invalidateSelf();
     }
 
@@ -267,14 +267,50 @@ class RadioButtonDrawable extends Drawable implements Animatable {
     }
 
     private void startScaleAnimation(){
-        mEntranceAnimator = ValueAnimator.ofFloat(0f,0.05f,0f,-0.05f,0f,0.02f,0f).setDuration(mAnimDuration);
+        mEntranceAnimator = ValueAnimator.ofFloat(0f,0.1f,0f,-0.1f,0f,0.04f,0f).setDuration(mAnimDuration);
         mEntranceAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator valueAnimator) {
                 mScaleFactor = (float)valueAnimator.getAnimatedValue();
+                invalidateSelf();
             }
         });
-//        mEntranceAnimator.addListener(new Animator.AnimatorListener() {
+        mEntranceAnimator.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                mRunning = false;
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+                mRunning = false;
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        });
+        mEntranceAnimator.start();
+    }
+
+    private void update(){
+        mRunning = true;
+        ValueAnimator animator = ValueAnimator.ofFloat(0,1f);
+        animator.setDuration(mAnimDuration/2);
+        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                mAnimProgress = (float) valueAnimator.getAnimatedValue();
+                invalidateSelf();
+            }
+        });
+//        animator.addListener(new Animator.AnimatorListener() {
 //            @Override
 //            public void onAnimationStart(Animator animator) {
 //
@@ -282,12 +318,12 @@ class RadioButtonDrawable extends Drawable implements Animatable {
 //
 //            @Override
 //            public void onAnimationEnd(Animator animator) {
-//
+//                mRunning = false;
 //            }
 //
 //            @Override
 //            public void onAnimationCancel(Animator animator) {
-//
+//                mRunning = false;
 //            }
 //
 //            @Override
@@ -295,34 +331,7 @@ class RadioButtonDrawable extends Drawable implements Animatable {
 //
 //            }
 //        });
-        mEntranceAnimator.start();
-    }
-    @Override
-    public void scheduleSelf(Runnable what, long when) {
-        mRunning = true;
-        super.scheduleSelf(what, when);
-    }
-
-    private final Runnable mUpdater = new Runnable() {
-
-        @Override
-        public void run() {
-            update();
-        }
-
-    };
-
-    private void update(){
-        long curTime = SystemClock.uptimeMillis();
-        mAnimProgress = Math.min(1f, (float)(curTime - mStartTime) / mAnimDuration);
-
-        if(mAnimProgress == 1f)
-            mRunning = false;
-
-        if(isRunning())
-            scheduleSelf(mUpdater, SystemClock.uptimeMillis() + ViewUtil.FRAME_DURATION);
-
-        invalidateSelf();
+        animator.start();
     }
 
     public static class Builder{
@@ -335,11 +344,6 @@ class RadioButtonDrawable extends Drawable implements Animatable {
         private int mInnerRadius = 8;
         private ColorStateList mStrokeColor;
 
-//        public Builder(){}
-
-        //        public Builder(Context context, int defStyleRes){
-//            this(context, null, 0, defStyleRes);
-//        }
         public Builder(){
 //        public Builder(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes){
 //            TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.RadioButtonDrawable, defStyleAttr, defStyleRes);
@@ -359,7 +363,7 @@ class RadioButtonDrawable extends Drawable implements Animatable {
             radius(Utils.dp2Px(12));
             innerRadius(Utils.dp2Px(8));
 //            strokeColor(Color.GRAY);
-            animDuration(750);
+            animDuration(400);
             if(mStrokeColor == null){
                 int[][] states = new int[][]{
                         new int[]{-android.R.attr.state_checked},
