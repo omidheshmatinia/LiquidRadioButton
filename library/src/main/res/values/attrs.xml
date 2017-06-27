@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="LiquidRadioButton">
+        <attr name="lrb_circleRadius" format="dimension"/>
+        <attr name="lrb_strokeWidth" format="dimension"/>
+        <attr name="lrb_innerPadding" format="dimension"/>
+        <attr name="lrb_explodeCount" format="integer"/>
+    </declare-styleable>
+</resources>
