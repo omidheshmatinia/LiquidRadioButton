@@ -9,32 +9,36 @@ import java.util.Random;
 
 class ExplosionAnimator extends ValueAnimator {
 
-    static long DEFAULT_DURATION = 0x400;
     private Paint mPaint;
     private Particle[] mParticles;
     private Rect mBound;
     private RadioButtonDrawable mContainer;
     private int mColor;
     private int GAP = 10 ;
+    private int mOuterRadius = 10 ;
+    private int mInnerRadius = 10 ;
 
-    ExplosionAnimator(RadioButtonDrawable container, Rect bound , int color, int number) {
+    ExplosionAnimator(RadioButtonDrawable container, Rect bound , int color, int number,int outerRadius
+    ,int innerRadius) {
+        mInnerRadius= innerRadius;
+        mOuterRadius = outerRadius;
         mPaint = new Paint();
         mBound = new Rect(bound);
         mColor=color;
-        mParticles = new Particle[5];
+        mParticles = new Particle[number];
         Random random = new Random(System.currentTimeMillis());
         for (int i = 0; i < number; i++) {
             mParticles[i] = generateParticle(random,i,number);
         }
         mContainer = container;
         setFloatValues(0f, 1f);
-        setDuration(DEFAULT_DURATION);
+        GAP = 50 / number ;
     }
 
     private Particle generateParticle(Random random,int index,int max) {
         Particle particle = new Particle();
 
-        int nextDegree = Math.max(random.nextInt(360/max) - 10,0) +((index*(360/max))+GAP);
+        int nextDegree = Math.max(random.nextInt(360/max) - GAP,0) +((index*(360/max))+GAP);
 
         float[] magnifiers = degreeToDirection(nextDegree);
         particle.xMag = magnifiers[0];
@@ -44,7 +48,7 @@ class ExplosionAnimator extends ValueAnimator {
         particle.cx = mBound.centerX();
         particle.baseCenterY = mBound.centerY();
         particle.cy = mBound.centerY();
-        particle.baseRadius = particle.radius = Utils.dp2Px(8);
+        particle.baseRadius = particle.radius = mInnerRadius;
 
         return particle;
     }
@@ -87,8 +91,8 @@ class ExplosionAnimator extends ValueAnimator {
             } if (factor>0.99)
                 radius = baseRadius * (0.21f-(0.21f*factor));
 
-            cx = baseCenterX + ((xMag*factor)*Utils.dp2Px(12) );
-            cy = baseCenterY + ((yMag*factor)*Utils.dp2Px(12) );
+            cx = baseCenterX + ((xMag*factor)* mOuterRadius);
+            cy = baseCenterY + ((yMag*factor)* mOuterRadius);
         }
     }
 

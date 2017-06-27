@@ -11,7 +11,7 @@ import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
-import android.os.SystemClock;
+import android.support.annotation.NonNull;
 
 class RadioButtonDrawable extends Drawable implements Animatable {
 
@@ -19,50 +19,51 @@ class RadioButtonDrawable extends Drawable implements Animatable {
 
     private Paint mPaint;
     private ValueAnimator mEntranceAnimator;
-    private long mStartTime;
     private float mAnimProgress;
     private float mScaleFactor = 1f;
-    private int mAnimDuration;
+    private int mInAnimDuration;
+    private int mOutAnimDuration;
+    private int mExplodeCounts;
     private int mStrokeSize;
     private int mWidth;
     private int mHeight;
     private int mRadius;
     private int mInnerRadius;
-    private int mPrevColor;
     private int mCurColor;
-    private ColorStateList mStrokeColor;
+    private ColorStateList mColorState;
     private boolean mChecked = false;
 
     private boolean mInEditMode = false;
     private boolean mAnimEnable = true;
 
-    ExplosionAnimator mExplosionsAnimator;
-    private Boolean explosionAnimationIsRunning = false;
+    private ExplosionAnimator mExplosionsAnimator;
+    private Boolean explosionAnimationIsRunning = true;
 
-    private RadioButtonDrawable(int width, int height, int strokeSize, ColorStateList strokeColor, int radius, int innerRadius, int animDuration){
-        mAnimDuration = animDuration;
-        mStrokeSize = strokeSize;
-        mWidth = width;
-        mHeight = height;
-        mRadius = radius;
-        mInnerRadius = innerRadius;
-        mStrokeColor = strokeColor;
+    private RadioButtonDrawable(Builder builder){
+        mInAnimDuration = builder.mInAnimDuration;
+        mOutAnimDuration = builder.mOutAnimDuration;
+        mExplodeCounts = builder.mExplodeCounts;
+        mStrokeSize = builder.mStrokeSize;
+        mHeight = mWidth = (builder.mRadius+builder.mOuterPadding) * 2;
+        mRadius = builder.mRadius;
+        mInnerRadius = builder.mInnerRadius;
+        mColorState = builder.mColorStateList;
 
         mPaint = new Paint();
         mPaint.setAntiAlias(true);
     }
 
-    public void setInEditMode(boolean b){
+    void setInEditMode(boolean b){
         mInEditMode = b;
     }
 
-    public void setAnimEnable(boolean b){
+    void setAnimEnable(boolean b){
         mAnimEnable = b;
     }
 
-    public boolean isAnimEnable(){
-        return mAnimEnable;
-    }
+//    boolean isAnimEnable(){
+//        return mAnimEnable;
+//    }
 
     @Override
     public int getIntrinsicWidth() {
@@ -90,7 +91,7 @@ class RadioButtonDrawable extends Drawable implements Animatable {
     }
 
     @Override
-    public void draw(Canvas canvas) {
+    public void draw(@NonNull Canvas canvas) {
         if(mChecked)
             drawChecked(canvas);
         else
@@ -103,8 +104,6 @@ class RadioButtonDrawable extends Drawable implements Animatable {
 
         if(isRunning()){
             canvas.scale(1-mScaleFactor,1+mScaleFactor,cx,cy);
-
-//                mPaint.setColor(ColorUtil.getMiddleColor(mPrevColor, mCurColor, inProgress)); //todo
             mPaint.setColor(Color.GREEN);
             mPaint.setStrokeWidth(mStrokeSize);
             mPaint.setStyle(Paint.Style.STROKE);
@@ -138,14 +137,15 @@ class RadioButtonDrawable extends Drawable implements Animatable {
         canvas.drawCircle(cx, cy, mRadius, mPaint);
         if(!explosionAnimationIsRunning){
             explosionAnimationIsRunning = true ;
-            ExplosionAnimator animator = new ExplosionAnimator(this,getBounds(),mCurColor,5);
+            ExplosionAnimator animator = new ExplosionAnimator(this,getBounds(),mCurColor,mExplodeCounts
+            ,mRadius,mInnerRadius);
             animator.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     mExplosionsAnimator = null;
                 }
             });
-            animator.setDuration(300);
+            animator.setDuration(mOutAnimDuration);
             mExplosionsAnimator = animator;
             animator.start();
         }
@@ -156,7 +156,7 @@ class RadioButtonDrawable extends Drawable implements Animatable {
     @Override
     protected boolean onStateChange(int[] state) {
         boolean checked = Utils.hasState(state, android.R.attr.state_checked);
-        int color = mStrokeColor.getColorForState(state, mCurColor);
+        int color = mColorState.getColorForState(state, mCurColor);
         boolean needRedraw = false;
 
         if(mChecked != checked){
@@ -169,12 +169,9 @@ class RadioButtonDrawable extends Drawable implements Animatable {
         }
 
         if(mCurColor != color){
-            mPrevColor = isRunning() ? mCurColor : color;
             mCurColor = color;
             needRedraw = true;
         }
-        else if(!isRunning())
-            mPrevColor = color;
 
         return needRedraw;
     }
@@ -194,10 +191,7 @@ class RadioButtonDrawable extends Drawable implements Animatable {
         return PixelFormat.TRANSLUCENT;
     }
 
-    //Animation: based on http://cyrilmottier.com/2012/11/27/actionbar-on-the-move/
-
     private void resetAnimation(){
-        mStartTime = SystemClock.uptimeMillis();
         mAnimProgress = 0f;
     }
 
@@ -206,7 +200,6 @@ class RadioButtonDrawable extends Drawable implements Animatable {
         resetAnimation();
         startScaleAnimation();
         update();
-//        scheduleSelf(mUpdater, SystemClock.uptimeMillis() + ViewUtil.FRAME_DURATION);
         invalidateSelf();
     }
 
@@ -222,7 +215,7 @@ class RadioButtonDrawable extends Drawable implements Animatable {
     }
 
     private void startScaleAnimation(){
-        mEntranceAnimator = ValueAnimator.ofFloat(0f,0.1f,0f,-0.1f,0f,0.04f,0f).setDuration(mAnimDuration);
+        mEntranceAnimator = ValueAnimator.ofFloat(0f,0.1f,0f,-0.1f,0f,0.04f,0f).setDuration(mInAnimDuration);
         mEntranceAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator valueAnimator) {
@@ -257,7 +250,7 @@ class RadioButtonDrawable extends Drawable implements Animatable {
     private void update(){
         mRunning = true;
         ValueAnimator animator = ValueAnimator.ofFloat(0,1f);
-        animator.setDuration(mAnimDuration/2);
+        animator.setDuration(mInAnimDuration/2);
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator valueAnimator) {
@@ -268,95 +261,73 @@ class RadioButtonDrawable extends Drawable implements Animatable {
         animator.start();
     }
 
-    public static class Builder{
+    static class Builder{
 
-        private int mAnimDuration = 400;
-        private int mStrokeSize = 2;
-        private int mWidth = 64;
-        private int mHeight = 64;
-        private int mRadius = 12;
-        private int mInnerRadius = 8;
-        private ColorStateList mStrokeColor;
+        private int mInAnimDuration;
+        private int mOutAnimDuration;
+        private int mExplodeCounts;
+        private int mStrokeSize;
+        private int mRadius;
+        private int mInnerRadius;
+        private int mCheckedColor;
+        private int mUnCheckedColor;
+        private int mOuterPadding;
+        private ColorStateList mColorStateList;
 
-        public Builder(){
-//        public Builder(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes){
-//            TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.RadioButtonDrawable, defStyleAttr, defStyleRes);
-//
-//            width(a.getDimensionPixelSize(R.styleable.RadioButtonDrawable_rbd_width, ThemeUtil.dpToPx(context, 32)));
-//            height(a.getDimensionPixelSize(R.styleable.RadioButtonDrawable_rbd_height, ThemeUtil.dpToPx(context, 32)));
-//            strokeSize(a.getDimensionPixelSize(R.styleable.RadioButtonDrawable_rbd_strokeSize, ThemeUtil.dpToPx(context, 2)));
-//            radius(a.getDimensionPixelSize(R.styleable.RadioButtonDrawable_rbd_radius, ThemeUtil.dpToPx(context, 10)));
-//            innerRadius(a.getDimensionPixelSize(R.styleable.RadioButtonDrawable_rbd_innerRadius, ThemeUtil.dpToPx(context, 5)));
-//            strokeColor(a.getColorStateList(R.styleable.RadioButtonDrawable_rbd_strokeColor));
-//            animDuration(a.getInt(R.styleable.RadioButtonDrawable_rbd_animDuration, context.getResources().getInteger(android.R.integer.config_mediumAnimTime)));
-//
-//            a.recycle();
-            width(Utils.dp2Px(32));
-            height(Utils.dp2Px(32));
-            strokeSize(Utils.dp2Px(2));
-            radius(Utils.dp2Px(12));
-            innerRadius(Utils.dp2Px(8));
-//            strokeColor(Color.GRAY);
-            animDuration(400);
-            if(mStrokeColor == null){
-                int[][] states = new int[][]{
-                        new int[]{-android.R.attr.state_checked},
-                        new int[]{android.R.attr.state_checked},
-                };
-                int[] colors = new int[]{
-                        Color.GRAY,
-                        Color.BLACK
-//                        ThemeUtil.colorControlNormal(context, 0xFF000000),
-//                        ThemeUtil.colorControlActivated(context, 0xFF000000),
-                };
-                strokeColor(new ColorStateList(states, colors));
-            }
+
+        RadioButtonDrawable build(){
+            int[][] states = new int[][]{
+                    new int[]{-android.R.attr.state_checked},
+                    new int[]{android.R.attr.state_checked},
+            };
+            int[] colors = new int[]{
+                    mUnCheckedColor,
+                    mCheckedColor
+            };
+            mColorStateList = new ColorStateList(states,colors);
+
+            return new RadioButtonDrawable(this);
         }
 
-        public RadioButtonDrawable build(){
-            if(mStrokeColor == null)
-                mStrokeColor = ColorStateList.valueOf(0xFF000000);
 
-            return new RadioButtonDrawable(mWidth, mHeight, mStrokeSize, mStrokeColor, mRadius, mInnerRadius, mAnimDuration);
-        }
-
-        public Builder width(int width){
-            mWidth = width;
-            return this;
-        }
-
-        public Builder height(int height){
-            mHeight = height;
-            return this;
-        }
-
-        public Builder strokeSize(int size){
+        Builder strokeSize(int size){
             mStrokeSize = size;
             return this;
         }
-
-        public Builder strokeColor(int color){
-            mStrokeColor = ColorStateList.valueOf(color);
+        Builder explodeCount(int count){
+            mExplodeCounts = count;
             return this;
         }
-
-        public Builder strokeColor(ColorStateList color){
-            mStrokeColor = color;
+        Builder checkedColor(int color){
+            mCheckedColor = color;
             return this;
         }
-
-        public Builder radius(int radius){
+        Builder unCheckedColor(int color){
+            mUnCheckedColor = color;
+            return this;
+        }
+        Builder radius(int radius){
             mRadius = radius;
             return this;
         }
 
-        public Builder innerRadius(int radius){
+        Builder innerRadius(int radius){
             mInnerRadius = radius;
             return this;
         }
 
-        public Builder animDuration(int duration){
-            mAnimDuration = duration;
+        Builder outAnimDuration(int duration){
+            mOutAnimDuration = duration;
+            return this;
+        }
+
+        Builder inAnimDuration(int duration){
+            mInAnimDuration = duration;
+            return this;
+        }
+
+        public Builder outerPadding(int padding) {
+            mOuterPadding = padding;
             return this;
         }
     }

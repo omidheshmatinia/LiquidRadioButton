@@ -10,21 +10,28 @@
     <RadioGroup
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-<me.omidh.liquidradiobutton.LiquidRadioButton
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:minWidth="40dp"
-    android:minHeight="40dp"
-    android:text="salam test"
-    android:gravity="center"
-    />
         <me.omidh.liquidradiobutton.LiquidRadioButton
             android:layout_width="wrap_content"
-            android:layout_height="60dp"
+            android:layout_height="wrap_content"
+            android:minWidth="40dp"
+            android:minHeight="40dp"
+            android:text="Test 1"
+            />
+        <me.omidh.liquidradiobutton.LiquidRadioButton
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="50dp"
             android:gravity="center"
-            app:lrb_circleRadius="25dp"
-            android:text="salam salam sadta salam"
-            app:lrb_strokeWidth="3dp"
+            app:lrb_strokeWidth="1dp"
+            app:lrb_explodeCount="3"
+            app:lrb_outterPadding="8dp"
+            app:lrb_innerCircleRadius="15dp"
+            app:lrb_strokeRadius="23dp"
+            app:lrb_inAnimDuration="500"
+            app:lrb_outAnimDuration="500"
+            app:lrb_checkedColor="@android:color/holo_green_dark"
+            app:lrb_unCheckedColor="@android:color/holo_red_light"
+            android:text="Test 2"
             />
     </RadioGroup>
 </LinearLayout>

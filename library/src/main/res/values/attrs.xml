@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="LiquidRadioButton">
-        <attr name="lrb_circleRadius" format="dimension"/>
+        <attr name="lrb_innerCircleRadius" format="dimension"/>
+        <attr name="lrb_strokeRadius" format="dimension"/>
         <attr name="lrb_strokeWidth" format="dimension"/>
-        <attr name="lrb_innerPadding" format="dimension"/>
+        <attr name="lrb_outterPadding" format="dimension"/>
         <attr name="lrb_explodeCount" format="integer"/>
+        <attr name="lrb_inAnimDuration" format="integer"/>
+        <attr name="lrb_outAnimDuration" format="integer"/>
+        <attr name="lrb_checkedColor" format="color"/>
+        <attr name="lrb_unCheckedColor" format="color"/>
     </declare-styleable>
 </resources>
