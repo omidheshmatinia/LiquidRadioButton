@@ -5,33 +5,59 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="#ff80deea"
     tools:context=".MainActivity">
 
+    <ImageView
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_gravity="center"
+        android:tint="@color/white"
+        android:src="@drawable/liquid_logo"/>
     <RadioGroup
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:gravity="center">
         <me.omidh.liquidradiobutton.LiquidRadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minWidth="40dp"
             android:minHeight="40dp"
             android:text="Test 1"
+            app:lrb_explodeCount="3"
+            android:textColor="@android:color/white"
+            app:lrb_checkedColor="@android:color/white"
+            app:lrb_unCheckedColor="@android:color/white"
             />
         <me.omidh.liquidradiobutton.LiquidRadioButton
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="50dp"
             android:gravity="center"
             app:lrb_strokeWidth="1dp"
-            app:lrb_explodeCount="3"
+            app:lrb_explodeCount="6"
             app:lrb_outterPadding="8dp"
             app:lrb_innerCircleRadius="15dp"
             app:lrb_strokeRadius="23dp"
-            app:lrb_inAnimDuration="500"
-            app:lrb_outAnimDuration="500"
-            app:lrb_checkedColor="@android:color/holo_green_dark"
-            app:lrb_unCheckedColor="@android:color/holo_red_light"
+            app:lrb_inAnimDuration="300"
+            app:lrb_outAnimDuration="300"
+            app:lrb_checkedColor="#ff4caf50"
+            app:lrb_unCheckedColor="#fff44336"
             android:text="Test 2"
+            />
+        <me.omidh.liquidradiobutton.LiquidRadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            app:lrb_strokeWidth="5dp"
+            app:lrb_explodeCount="5"
+            app:lrb_outterPadding="4dp"
+            app:lrb_innerCircleRadius="5dp"
+            app:lrb_strokeRadius="18dp"
+            app:lrb_inAnimDuration="400"
+            app:lrb_outAnimDuration="300"
+            app:lrb_checkedColor="#fff57f17"
+            app:lrb_unCheckedColor="#fff57f17"
+            android:text="Test 3"
             />
     </RadioGroup>
 </LinearLayout>

@@ -1,3 +1,4 @@
+ [ ![Download](https://api.bintray.com/packages/omidheshmatinia/maven/LiquidRadioButton/images/download.svg) ](https://bintray.com/omidheshmatinia/maven/LiquidRadioButton/_latestVersion)
  [![Twitter](https://img.shields.io/badge/Twitter-@Smartiiiiz-blue.svg?style=flat)](http://twitter.com/Smartiiiiz)
 ![Platform](https://img.shields.io/badge/Platform-Android-green.svg) ![Minimun Android Sdk Version](https://img.shields.io/badge/min--sdk-11-yellowgreen.svg) 
 
@@ -8,12 +9,14 @@ A Radio button with custom liquid animation. You can change animations duration,
 
 <img src="/sample/sample1.gif"/>
 
-<!-- # Setup -->
-<!-- ## 1. Provide the gradle dependency -->
-<!-- ```gradle -->
-<!-- compile 'me.omidh:liquidradiobutton:1.0.0' -->
-<!-- ``` -->
-## 1. Sample
+<img src="/sample/sample2.gif"/>
+
+ # Setup
+ ## 1. Provide the gradle dependency
+ ```gradle
+ compile 'me.omidh:liquidradiobutton:1.0.01'
+ ```
+ ## 2. Sample
 
 ```xml
  <me.omidh.liquidradiobutton.LiquidRadioButton
@@ -46,7 +49,7 @@ _tyrantgit_ for his great library [ExplosionField](https://github.com/tyrantgit/
 
 ### Todo
 * add sample
-* add mobile screenshots
+* update readme and wiki
 
 # Developed By
 

@@ -104,12 +104,12 @@ class RadioButtonDrawable extends Drawable implements Animatable {
 
         if(isRunning()){
             canvas.scale(1-mScaleFactor,1+mScaleFactor,cx,cy);
-            mPaint.setColor(Color.GREEN);
+            mPaint.setColor(mCurColor);
             mPaint.setStrokeWidth(mStrokeSize);
             mPaint.setStyle(Paint.Style.STROKE);
             canvas.drawCircle(cx, cy, mRadius, mPaint);
 
-            mPaint.setColor(Color.GREEN);
+            mPaint.setColor(mCurColor);
             mPaint.setStyle(Paint.Style.FILL);
             float centerY = (cy - ( mRadius + mStrokeSize) * (1 - mAnimProgress));
             float radius = mInnerRadius*mAnimProgress;
@@ -117,7 +117,6 @@ class RadioButtonDrawable extends Drawable implements Animatable {
         }
         else{
             mPaint.setColor(mCurColor);
-            mPaint.setColor(Color.GREEN);
             mPaint.setStrokeWidth(mStrokeSize);
             mPaint.setStyle(Paint.Style.STROKE);
             canvas.drawCircle(cx, cy, mRadius, mPaint);

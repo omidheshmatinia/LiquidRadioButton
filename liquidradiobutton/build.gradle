@@ -14,7 +14,7 @@ ext {
     siteUrl = 'https://github.com/omidheshmatinia/LiquidRadioButton'
     gitUrl = 'https://github.com/omidheshmatinia/LiquidRadioButton.git'
 
-    libraryVersion = '1.0.0'
+    libraryVersion = '1.0.01'
 
     developerId = 'omidheshmatinia'
     developerName = 'Omid Heshmatinia'
@@ -33,7 +33,7 @@ android {
         minSdkVersion 11
         targetSdkVersion 25
         versionCode 1
-        versionName "1.0"
+        versionName "1.0.01"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
